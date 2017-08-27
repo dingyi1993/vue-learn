@@ -24,6 +24,9 @@ Vud.prototype = {
         return self.data[key]
       },
       set: function(newVal) {
+        if (self.data[key] === newVal) {
+          return
+        }
         console.log('set');
         self.data[key] = newVal
       },

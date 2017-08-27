@@ -30,16 +30,32 @@ Compile.prototype = {
       var reg = /\{\{(.*)\}\}/;
       var text = item.textContent;
       var vnode = new VNode(item)
-      if (item.nodeType === Node.TEXT_NODE) {
-        if (reg.test(text)) {
-          self.compileText(vnode, reg.exec(text))
-        }
-      } else {
+      switch (item.nodeType) {
+        case Node.ELEMENT_NODE:
         self.compileDirective(item)
         if (item.childNodes && item.childNodes.length) {
           self.compileElement(item)
         }
+        break;
+
+        case Node.TEXT_NODE:
+        if (reg.test(text)) {
+          self.compileText(vnode, reg.exec(text))
+        }
+        break;
+
+        default:
+        break;
       }
+      // if (item.nodeType === ) {
+      //   self.compileDirective(item)
+      // } else if (item.nodeType === ) {
+
+      // } else {
+      //   if (item.childNodes && item.childNodes.length) {
+      //     self.compileElement(item)
+      //   }
+      // }
       // } else
     })
     return el
@@ -58,26 +74,34 @@ Compile.prototype = {
     vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value);
     // node.textContent = typeof value == 'undefined' ? '' : value;
   },
+
+  // 编译指令
   compileDirective: function(node) {
     var self = this
     var removeAttrs = []
     console.log(node.attributes);
     Array.prototype.forEach.call(node.attributes, function(item) {
       var attrName = item.name
-      if (self.isEventDirective(attrName)) {
+      if (self.isEventDirective(attrName)) { // on:xxx
         var exp = item.value
         var dir = attrName.substring(3)
-        node.addEventListener(dir, function() {
-          self.vm.methods[exp].call(self.vm)
-        })
+        if (dir && self.vm.methods) {
+          node.addEventListener(dir, function() {
+            self.vm.methods[exp].call(self.vm)
+          })
+        }
         removeAttrs.push(attrName)
-      } else if (self.isDirective(attrName)) {
+      } else if (self.isDirective(attrName)) { // v-xxx
         var exp = item.value
         var dir = attrName.substring(2)
         if (dir === 'model') {
           node.value = self.vm[exp]
-          node.addEventListener('input', function() {
-            self.vm[exp] = this.value
+          node.addEventListener('input', function(e) {
+            var newVal = e.target.value
+            if (newVal === self.vm[exp]) {
+              return
+            }
+            self.vm[exp] = newVal
           })
           removeAttrs.push(attrName)
           new Watcher(self.vm, exp, function(val, oldVal) {
