@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="src/dep.js"></script>
+  <script src="src/observer.js"></script>
+  <script src="src/watcher.js"></script>
+  <script src="src/vnode.js"></script>
+  <script src="src/compile.js"></script>
+  <script src="src/index.js"></script>
+</head>
+
+<body>
+  <div id="app">{{ a }} wer123<span>{{ b }}</span><input type="text" v-model="c" on:focus="handleFocus">{{ c }}</div>
+  <script>
+    // var a = {
+    //   a: 23
+    // };
+    // observer(a);
+
+    var vm = new Vud({
+      data: {
+        a: 23,
+        b: 45,
+        c: 'qwe',
+      },
+      el: document.getElementById('app'),
+      methods: {
+        handleFocus: function() {
+          console.log(this.a)
+        }
+      },
+    })
+  </script>
+
+</body>
+
+</html>
