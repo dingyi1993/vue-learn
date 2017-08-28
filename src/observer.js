@@ -1,7 +1,9 @@
-var observer = function(data) {
+import Dep from './dep';
+
+export var observer = function(data) {
   return new Observer(data)
 }
-Observer = function(data) {
+function Observer(data) {
   this.data = data
 
   var dep = new Dep()

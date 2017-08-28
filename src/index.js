@@ -1,3 +1,6 @@
+import { observer } from './observer';
+import Compile from './compile';
+
 function Vud(options) {
   var self = this
   this.vm = this
@@ -33,3 +36,5 @@ Vud.prototype = {
     })
   }
 }
+
+export default Vud

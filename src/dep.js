@@ -1,4 +1,4 @@
-Dep = function() {
+function Dep() {
   this.stack = []
 }
 Dep.prototype = {
@@ -11,3 +11,4 @@ Dep.prototype = {
     }
   },
 }
+export default Dep

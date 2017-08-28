@@ -1,3 +1,6 @@
+import Watcher from './watcher';
+import VNode from './vnode';
+
 function Compile(el, vm) {
   this.el = el
   this.vm = vm
@@ -47,23 +50,12 @@ Compile.prototype = {
         default:
         break;
       }
-      // if (item.nodeType === ) {
-      //   self.compileDirective(item)
-      // } else if (item.nodeType === ) {
-
-      // } else {
-      //   if (item.childNodes && item.childNodes.length) {
-      //     self.compileElement(item)
-      //   }
-      // }
-      // } else
     })
     return el
   },
   compileText: function(vnode, regResult) {
     var self = this;
     var exp = regResult[1].trim()
-    // var initText = node.textContent.replace(new RegExp(regResult[0], 'g'), this.vm[exp]);
     this.updateText(vnode, regResult[0], this.vm[exp]); // 将初始化的数据初始化到视图中
     new Watcher(this.vm, exp, function(val, oldVal) { // 生成订阅器并绑定更新函数
       self.updateText(vnode, regResult[0], val);
@@ -72,7 +64,6 @@ Compile.prototype = {
   updateText: function(vnode, template, value) {
     console.log('textContent:' + vnode.template);
     vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value);
-    // node.textContent = typeof value == 'undefined' ? '' : value;
   },
 
   // 编译指令
@@ -113,9 +104,6 @@ Compile.prototype = {
     removeAttrs.forEach(function(item) {
       node.removeAttribute(item)
     })
-    // node.attributes.forEach(function(item) {
-    //   console.log(item)
-    // })
   },
   isDirective: function(attrName) {
     return /^v-/.test(attrName)
@@ -124,3 +112,5 @@ Compile.prototype = {
     return /^on:/.test(attrName)
   },
 }
+
+export default Compile

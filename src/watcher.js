@@ -1,3 +1,5 @@
+import Dep from './dep';
+
 function Watcher(vm, exp, cb) {
   this.cb = cb;
   this.vm = vm;
@@ -26,3 +28,5 @@ Watcher.prototype = {
     return value;
   }
 };
+
+export default Watcher
