@@ -29,4 +29,5 @@ export default {
     }),
   ],
   banner,
+  sourcemap: true
 };

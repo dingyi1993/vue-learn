@@ -450,6 +450,10 @@ var Compile = function () {
   return Compile;
 }();
 
+// import add from 'lodash/add';
+
+// console.log(add);
+
 var Vud = function () {
   function Vud(options) {
     var _this = this;
@@ -495,3 +499,4 @@ var Vud = function () {
 return Vud;
 
 })));
+//# sourceMappingURL=vud.js.map
