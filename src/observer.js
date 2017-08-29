@@ -1,30 +1,30 @@
 import Dep from './dep';
 
-export var observer = function(data) {
-  return new Observer(data)
-}
-function Observer(data) {
-  this.data = data
+class Observer {
+  constructor(data) {
+    this.data = data
 
-  var dep = new Dep()
-  // var value = data.a
-  Object.keys(data).forEach(function(item) {
-    defineReactive(data, item, data[item])
-  })
+    const dep = new Dep()
+    // const value = data.a
+    Object.keys(data).forEach((item) => {
+      defineReactive(data, item, data[item])
+    })
+  }
 }
-var defineReactive = function(data, key, val) {
-  var dep = new Dep()
+
+const defineReactive = (data, key, val) => {
+  const dep = new Dep()
   Object.defineProperty(data, key, {
     enumerable: true,
     configurable: true,
-    get: function() {
+    get() {
       console.log('get value: ' + val)
       if (Dep.target) {
         dep.addSub(Dep.target)
       }
       return val
     },
-    set: function(newVal) {
+    set(newVal) {
       if (newVal === val) {
         return
       }
@@ -33,4 +33,8 @@ var defineReactive = function(data, key, val) {
       dep.notify()
     },
   })
+}
+
+export const observer = (data) => {
+  return new Observer(data)
 }

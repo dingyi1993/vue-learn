@@ -1,13 +1,13 @@
 import Watcher from './watcher';
 import VNode from './vnode';
 
-function Compile(el, vm) {
-  this.el = el
-  this.vm = vm
-  this.init()
-}
-Compile.prototype = {
-  init: function() {
+export default class Compile {
+  constructor(el, vm) {
+    this.el = el
+    this.vm = vm
+    this.init()
+  }
+  init() {
     if (this.el) {
       this.fragment = this.nodeTofragment(this.el)
       this.compileElement(this.fragment)
@@ -15,35 +15,34 @@ Compile.prototype = {
     } else {
       console.error('dom元素不存在')
     }
-  },
-  nodeTofragment: function(el) {
-    var fragment = document.createDocumentFragment();
-    var child = el.firstChild;
+  }
+  nodeTofragment(el) {
+    const fragment = document.createDocumentFragment();
+    let child = el.firstChild;
     while (child) {
       // 将Dom元素移入fragment中
       fragment.appendChild(child);
       child = el.firstChild
     }
     return fragment;
-  },
-  compileElement: function(el) {
-    var childNodes = el.childNodes
-    var self = this
-    childNodes.forEach(function(item) {
-      var reg = /\{\{(.*)\}\}/;
-      var text = item.textContent;
-      var vnode = new VNode(item)
+  }
+  compileElement(el) {
+    const childNodes = el.childNodes
+    childNodes.forEach((item) => {
+      const reg = /\{\{(.*)\}\}/;
+      const text = item.textContent;
+      const vnode = new VNode(item)
       switch (item.nodeType) {
         case Node.ELEMENT_NODE:
-        self.compileDirective(item)
+        this.compileDirective(item)
         if (item.childNodes && item.childNodes.length) {
-          self.compileElement(item)
+          this.compileElement(item)
         }
         break;
 
         case Node.TEXT_NODE:
         if (reg.test(text)) {
-          self.compileText(vnode, reg.exec(text))
+          this.compileText(vnode, reg.exec(text))
         }
         break;
 
@@ -52,65 +51,61 @@ Compile.prototype = {
       }
     })
     return el
-  },
-  compileText: function(vnode, regResult) {
-    var self = this;
-    var exp = regResult[1].trim()
+  }
+  compileText(vnode, regResult) {
+    const exp = regResult[1].trim()
     this.updateText(vnode, regResult[0], this.vm[exp]); // 将初始化的数据初始化到视图中
-    new Watcher(this.vm, exp, function(val, oldVal) { // 生成订阅器并绑定更新函数
-      self.updateText(vnode, regResult[0], val);
+    new Watcher(this.vm, exp, (val, oldVal) => { // 生成订阅器并绑定更新函数
+      this.updateText(vnode, regResult[0], val);
     });
-  },
-  updateText: function(vnode, template, value) {
+  }
+  updateText(vnode, template, value) {
     console.log('textContent:' + vnode.template);
     vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value);
-  },
+  }
 
   // 编译指令
-  compileDirective: function(node) {
-    var self = this
-    var removeAttrs = []
+  compileDirective(node) {
+    const removeAttrs = []
     console.log(node.attributes);
-    Array.prototype.forEach.call(node.attributes, function(item) {
-      var attrName = item.name
-      if (self.isEventDirective(attrName)) { // on:xxx
-        var exp = item.value
-        var dir = attrName.substring(3)
-        if (dir && self.vm.methods) {
-          node.addEventListener(dir, function() {
-            self.vm.methods[exp].call(self.vm)
+    Array.prototype.forEach.call(node.attributes, (item) => {
+      const attrName = item.name
+      if (this.isEventDirective(attrName)) { // on:xxx
+        const exp = item.value
+        const dir = attrName.substring(3)
+        if (dir && this.vm.methods) {
+          node.addEventListener(dir, () => {
+            this.vm.methods[exp].call(this.vm)
           })
         }
         removeAttrs.push(attrName)
-      } else if (self.isDirective(attrName)) { // v-xxx
-        var exp = item.value
-        var dir = attrName.substring(2)
+      } else if (this.isDirective(attrName)) { // v-xxx
+        const exp = item.value
+        const dir = attrName.substring(2)
         if (dir === 'model') {
-          node.value = self.vm[exp]
-          node.addEventListener('input', function(e) {
-            var newVal = e.target.value
-            if (newVal === self.vm[exp]) {
+          node.value = this.vm[exp]
+          node.addEventListener('input', (e) => {
+            const newVal = e.target.value
+            if (newVal === this.vm[exp]) {
               return
             }
-            self.vm[exp] = newVal
+            this.vm[exp] = newVal
           })
           removeAttrs.push(attrName)
-          new Watcher(self.vm, exp, function(val, oldVal) {
+          new Watcher(this.vm, exp, (val, oldVal) => {
             node.value = val
           })
         }
       }
     })
-    removeAttrs.forEach(function(item) {
+    removeAttrs.forEach((item) => {
       node.removeAttribute(item)
     })
-  },
-  isDirective: function(attrName) {
+  }
+  isDirective(attrName) {
     return /^v-/.test(attrName)
-  },
-  isEventDirective: function(attrName) {
+  }
+  isEventDirective(attrName) {
     return /^on:/.test(attrName)
-  },
+  }
 }
-
-export default Compile

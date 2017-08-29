@@ -1,32 +1,29 @@
 import Dep from './dep';
 
-function Watcher(vm, exp, cb) {
-  this.cb = cb;
-  this.vm = vm;
-  this.exp = exp;
-  this.value = this.get(); // 将自己添加到订阅器的操作
-}
-
-Watcher.prototype = {
-  update: function() {
+export default class Watcher {
+  constructor(vm, exp, cb) {
+    this.cb = cb;
+    this.vm = vm;
+    this.exp = exp;
+    this.value = this.get(); // 将自己添加到订阅器的操作
+  }
+  update() {
     console.log('update')
     this.run();
-  },
-  run: function() {
+  }
+  run() {
     console.log('run')
-    var value = this.vm[this.exp];
-    var oldVal = this.value;
+    const value = this.vm[this.exp];
+    const oldVal = this.value;
     if (value !== oldVal) {
       this.value = value;
       this.cb.call(this.vm, value, oldVal);
     }
-  },
-  get: function() {
+  }
+  get() {
     Dep.target = this; // 缓存自己
-    var value = this.vm[this.exp] // 强制执行监听器里的get函数
+    const value = this.vm[this.exp] // 强制执行监听器里的get函数
     Dep.target = null; // 释放自己
     return value;
   }
-};
-
-export default Watcher
+}

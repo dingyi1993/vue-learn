@@ -4,40 +4,35 @@ import Compile from './compile';
 
 // console.log(add);
 
-function Vud(options) {
-  var self = this
-  this.vm = this
-  this.data = options.data
-  this.methods = options.methods
+export default class Vud {
+  constructor(options) {
+    this.vm = this
+    this.data = options.data
+    this.methods = options.methods
 
-  // 代理 vm.xxx => vm.data.xxx
-  Object.keys(options.data).forEach(function(item) {
-    self.proxyKeys(item)
-  })
-  observer(options.data)
-  new Compile(options.el, this.vm)
-  return this
-}
-
-Vud.prototype = {
-  proxyKeys: function(key) {
-    var self = this
+    // 代理 vm.xxx => vm.data.xxx
+    Object.keys(options.data).forEach((item) => {
+      this.proxyKeys(item)
+    })
+    observer(options.data)
+    new Compile(options.el, this.vm)
+    return this
+  }
+  proxyKeys(key) {
     Object.defineProperty(this, key, {
       enumerable: true,
       configurable: true,
-      get: function() {
+      get() {
         console.log('get');
-        return self.data[key]
+        return this.data[key]
       },
-      set: function(newVal) {
-        if (self.data[key] === newVal) {
+      set(newVal) {
+        if (this.data[key] === newVal) {
           return
         }
         console.log('set');
-        self.data[key] = newVal
+        this.data[key] = newVal
       },
     })
   }
 }
-
-export default Vud
