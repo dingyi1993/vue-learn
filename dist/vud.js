@@ -14,48 +14,48 @@ function Dep() {
   this.stack = [];
 }
 Dep.prototype = {
-  addSub: function(target) {
+  addSub: function addSub(target) {
     this.stack.push(target);
   },
-  notify: function() {
+  notify: function notify() {
     for (var i = 0; i < this.stack.length; i++) {
       this.stack[i].update();
     }
-  },
+  }
 };
 
-var observer = function(data) {
-  return new Observer(data)
+var observer = function observer(data) {
+  return new Observer(data);
 };
 function Observer(data) {
   this.data = data;
 
   var dep = new Dep();
   // var value = data.a
-  Object.keys(data).forEach(function(item) {
+  Object.keys(data).forEach(function (item) {
     defineReactive(data, item, data[item]);
   });
 }
-var defineReactive = function(data, key, val) {
+var defineReactive = function defineReactive(data, key, val) {
   var dep = new Dep();
   Object.defineProperty(data, key, {
     enumerable: true,
     configurable: true,
-    get: function() {
+    get: function get() {
       console.log('get value: ' + val);
       if (Dep.target) {
         dep.addSub(Dep.target);
       }
-      return val
+      return val;
     },
-    set: function(newVal) {
+    set: function set(newVal) {
       if (newVal === val) {
-        return
+        return;
       }
       console.log('new val is :' + newVal);
       val = newVal;
       dep.notify();
-    },
+    }
   });
 };
 
@@ -67,11 +67,11 @@ function Watcher(vm, exp, cb) {
 }
 
 Watcher.prototype = {
-  update: function() {
+  update: function update() {
     console.log('update');
     this.run();
   },
-  run: function() {
+  run: function run() {
     console.log('run');
     var value = this.vm[this.exp];
     var oldVal = this.value;
@@ -80,7 +80,7 @@ Watcher.prototype = {
       this.cb.call(this.vm, value, oldVal);
     }
   },
-  get: function() {
+  get: function get() {
     Dep.target = this; // 缓存自己
     var value = this.vm[this.exp]; // 强制执行监听器里的get函数
     Dep.target = null; // 释放自己
@@ -99,7 +99,7 @@ function Compile(el, vm) {
   this.init();
 }
 Compile.prototype = {
-  init: function() {
+  init: function init() {
     if (this.el) {
       this.fragment = this.nodeTofragment(this.el);
       this.compileElement(this.fragment);
@@ -108,7 +108,7 @@ Compile.prototype = {
       console.error('dom元素不存在');
     }
   },
-  nodeTofragment: function(el) {
+  nodeTofragment: function nodeTofragment(el) {
     var fragment = document.createDocumentFragment();
     var child = el.firstChild;
     while (child) {
@@ -118,92 +118,101 @@ Compile.prototype = {
     }
     return fragment;
   },
-  compileElement: function(el) {
+  compileElement: function compileElement(el) {
     var childNodes = el.childNodes;
     var self = this;
-    childNodes.forEach(function(item) {
+    childNodes.forEach(function (item) {
       var reg = /\{\{(.*)\}\}/;
       var text = item.textContent;
       var vnode = new VNode(item);
       switch (item.nodeType) {
         case Node.ELEMENT_NODE:
-        self.compileDirective(item);
-        if (item.childNodes && item.childNodes.length) {
-          self.compileElement(item);
-        }
-        break;
+          self.compileDirective(item);
+          if (item.childNodes && item.childNodes.length) {
+            self.compileElement(item);
+          }
+          break;
 
         case Node.TEXT_NODE:
-        if (reg.test(text)) {
-          self.compileText(vnode, reg.exec(text));
-        }
-        break;
+          if (reg.test(text)) {
+            self.compileText(vnode, reg.exec(text));
+          }
+          break;
 
         default:
-        break;
+          break;
       }
     });
-    return el
+    return el;
   },
-  compileText: function(vnode, regResult) {
+  compileText: function compileText(vnode, regResult) {
     var self = this;
     var exp = regResult[1].trim();
     this.updateText(vnode, regResult[0], this.vm[exp]); // 将初始化的数据初始化到视图中
-    new Watcher(this.vm, exp, function(val, oldVal) { // 生成订阅器并绑定更新函数
+    new Watcher(this.vm, exp, function (val, oldVal) {
+      // 生成订阅器并绑定更新函数
       self.updateText(vnode, regResult[0], val);
     });
   },
-  updateText: function(vnode, template, value) {
+  updateText: function updateText(vnode, template, value) {
     console.log('textContent:' + vnode.template);
     vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value);
   },
 
   // 编译指令
-  compileDirective: function(node) {
+  compileDirective: function compileDirective(node) {
     var self = this;
     var removeAttrs = [];
     console.log(node.attributes);
-    Array.prototype.forEach.call(node.attributes, function(item) {
+    Array.prototype.forEach.call(node.attributes, function (item) {
       var attrName = item.name;
-      if (self.isEventDirective(attrName)) { // on:xxx
+      if (self.isEventDirective(attrName)) {
+        // on:xxx
         var exp = item.value;
         var dir = attrName.substring(3);
         if (dir && self.vm.methods) {
-          node.addEventListener(dir, function() {
+          node.addEventListener(dir, function () {
             self.vm.methods[exp].call(self.vm);
           });
         }
         removeAttrs.push(attrName);
-      } else if (self.isDirective(attrName)) { // v-xxx
+      } else if (self.isDirective(attrName)) {
+        // v-xxx
         var exp = item.value;
         var dir = attrName.substring(2);
         if (dir === 'model') {
           node.value = self.vm[exp];
-          node.addEventListener('input', function(e) {
+          node.addEventListener('input', function (e) {
             var newVal = e.target.value;
             if (newVal === self.vm[exp]) {
-              return
+              return;
             }
             self.vm[exp] = newVal;
           });
           removeAttrs.push(attrName);
-          new Watcher(self.vm, exp, function(val, oldVal) {
+          new Watcher(self.vm, exp, function (val, oldVal) {
             node.value = val;
           });
         }
       }
     });
-    removeAttrs.forEach(function(item) {
+    removeAttrs.forEach(function (item) {
       node.removeAttribute(item);
     });
   },
-  isDirective: function(attrName) {
-    return /^v-/.test(attrName)
+  isDirective: function isDirective(attrName) {
+    return (/^v-/.test(attrName)
+    );
   },
-  isEventDirective: function(attrName) {
-    return /^on:/.test(attrName)
-  },
+  isEventDirective: function isEventDirective(attrName) {
+    return (/^on:/.test(attrName)
+    );
+  }
 };
+
+// import add from 'lodash/add';
+
+// console.log(add);
 
 function Vud(options) {
   var self = this;
@@ -212,31 +221,31 @@ function Vud(options) {
   this.methods = options.methods;
 
   // 代理 vm.xxx => vm.data.xxx
-  Object.keys(options.data).forEach(function(item) {
+  Object.keys(options.data).forEach(function (item) {
     self.proxyKeys(item);
   });
   observer(options.data);
   new Compile(options.el, this.vm);
-  return this
+  return this;
 }
 
 Vud.prototype = {
-  proxyKeys: function(key) {
+  proxyKeys: function proxyKeys(key) {
     var self = this;
     Object.defineProperty(this, key, {
       enumerable: true,
       configurable: true,
-      get: function() {
+      get: function get() {
         console.log('get');
-        return self.data[key]
+        return self.data[key];
       },
-      set: function(newVal) {
+      set: function set(newVal) {
         if (self.data[key] === newVal) {
-          return
+          return;
         }
         console.log('set');
         self.data[key] = newVal;
-      },
+      }
     });
   }
 };

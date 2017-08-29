@@ -1,5 +1,8 @@
 import { observer } from './observer';
 import Compile from './compile';
+// import add from 'lodash/add';
+
+// console.log(add);
 
 function Vud(options) {
   var self = this
