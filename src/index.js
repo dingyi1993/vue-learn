@@ -1,8 +1,8 @@
-import { observer } from './observer';
-import Compile from './compile';
-// import add from 'lodash/add';
+import { observer } from './observer'
+import Compile from './compile'
+// import add from 'lodash/add'
 
-// console.log(add);
+// console.log(add)
 
 export default class Vud {
   constructor(options) {
@@ -23,14 +23,14 @@ export default class Vud {
       enumerable: true,
       configurable: true,
       get() {
-        console.log('get');
+        console.log('get')
         return this.data[key]
       },
       set(newVal) {
         if (this.data[key] === newVal) {
           return
         }
-        console.log('set');
+        console.log('set')
         this.data[key] = newVal
       },
     })

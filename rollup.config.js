@@ -1,9 +1,13 @@
 import json from 'rollup-plugin-json'
 // import resolve from 'rollup-plugin-node-resolve';
 // import commonjs from 'rollup-plugin-commonjs';
-import babel from 'rollup-plugin-babel';
+import babel from 'rollup-plugin-babel'
+import eslint from 'rollup-plugin-eslint'
 
-import packageJson from './package.json';
+import packageJson from './package.json'
+import eslintrc from './src/.eslintrc.json'
+
+eslintrc.include = 'src/**'
 
 const banner =
 '/*!\n' +
@@ -18,16 +22,17 @@ export default {
   output: {
     format: 'umd',
     name: 'Vud',
-    file: 'dist/vud.js'
+    file: 'dist/vud.js',
   },
   plugins: [
     json(),
     // resolve(),
     // commonjs(),
+    eslint(eslintrc),
     babel({
-      exclude: 'node_modules/**'
+      exclude: 'node_modules/**',
     }),
   ],
   banner,
-  sourcemap: true
-};
+  sourcemap: true,
+}

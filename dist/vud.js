@@ -223,40 +223,46 @@ var Dep = function () {
   return Dep;
 }();
 
-var Observer = function Observer(data) {
-  classCallCheck(this, Observer);
+var Observer = function () {
+  function Observer(data) {
+    classCallCheck(this, Observer);
 
-  this.data = data;
+    this.data = data;
 
-  var dep = new Dep();
-  // const value = data.a
-  Object.keys(data).forEach(function (item) {
-    defineReactive(data, item, data[item]);
-  });
-};
+    var dep = new Dep();
+    // const value = data.a
+    Object.keys(data).forEach(function (item) {
+      Observer.defineReactive(data, item, data[item]);
+    });
+  }
 
-var defineReactive = function defineReactive(data, key, val) {
-  var dep = new Dep();
-  Object.defineProperty(data, key, {
-    enumerable: true,
-    configurable: true,
-    get: function get$$1() {
-      console.log('get value: ' + val);
-      if (Dep.target) {
-        dep.addSub(Dep.target);
-      }
-      return val;
-    },
-    set: function set$$1(newVal) {
-      if (newVal === val) {
-        return;
-      }
-      console.log('new val is :' + newVal);
-      val = newVal;
-      dep.notify();
+  createClass(Observer, null, [{
+    key: 'defineReactive',
+    value: function defineReactive(data, key, val) {
+      var dep = new Dep();
+      Object.defineProperty(data, key, {
+        enumerable: true,
+        configurable: true,
+        get: function get$$1() {
+          console.log('get value: ' + val);
+          if (Dep.target) {
+            dep.addSub(Dep.target);
+          }
+          return val;
+        },
+        set: function set$$1(newVal) {
+          if (newVal === val) {
+            return;
+          }
+          console.log('new val is :' + newVal);
+          val = newVal;
+          dep.notify();
+        }
+      });
     }
-  });
-};
+  }]);
+  return Observer;
+}();
 
 var observer = function observer(data) {
   return new Observer(data);
@@ -321,24 +327,12 @@ var Compile = function () {
     key: 'init',
     value: function init() {
       if (this.el) {
-        this.fragment = this.nodeTofragment(this.el);
+        this.fragment = Compile.nodeTofragment(this.el);
         this.compileElement(this.fragment);
         this.el.appendChild(this.fragment);
       } else {
         console.error('dom元素不存在');
       }
-    }
-  }, {
-    key: 'nodeTofragment',
-    value: function nodeTofragment(el) {
-      var fragment = document.createDocumentFragment();
-      var child = el.firstChild;
-      while (child) {
-        // 将Dom元素移入fragment中
-        fragment.appendChild(child);
-        child = el.firstChild;
-      }
-      return fragment;
     }
   }, {
     key: 'compileElement',
@@ -373,58 +367,50 @@ var Compile = function () {
   }, {
     key: 'compileText',
     value: function compileText(vnode, regResult) {
-      var _this2 = this;
-
       var exp = regResult[1].trim();
-      this.updateText(vnode, regResult[0], this.vm[exp]); // 将初始化的数据初始化到视图中
+      Compile.updateText(vnode, regResult[0], this.vm[exp]); // 将初始化的数据初始化到视图中
       new Watcher(this.vm, exp, function (val, oldVal) {
         // 生成订阅器并绑定更新函数
-        _this2.updateText(vnode, regResult[0], val);
+        Compile.updateText(vnode, regResult[0], val);
       });
     }
   }, {
-    key: 'updateText',
-    value: function updateText(vnode, template, value) {
-      console.log('textContent:' + vnode.template);
-      vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value);
-    }
+    key: 'compileDirective',
+
 
     // 编译指令
-
-  }, {
-    key: 'compileDirective',
     value: function compileDirective(node) {
-      var _this3 = this;
+      var _this2 = this;
 
       var removeAttrs = [];
       console.log(node.attributes);
       Array.prototype.forEach.call(node.attributes, function (item) {
         var attrName = item.name;
-        if (_this3.isEventDirective(attrName)) {
+        if (Compile.isEventDirective(attrName)) {
           // on:xxx
           var exp = item.value;
           var dir = attrName.substring(3);
-          if (dir && _this3.vm.methods) {
+          if (dir && _this2.vm.methods) {
             node.addEventListener(dir, function () {
-              _this3.vm.methods[exp].call(_this3.vm);
+              _this2.vm.methods[exp].call(_this2.vm);
             });
           }
           removeAttrs.push(attrName);
-        } else if (_this3.isDirective(attrName)) {
+        } else if (Compile.isDirective(attrName)) {
           // v-xxx
           var _exp = item.value;
           var _dir = attrName.substring(2);
           if (_dir === 'model') {
-            node.value = _this3.vm[_exp];
+            node.value = _this2.vm[_exp];
             node.addEventListener('input', function (e) {
               var newVal = e.target.value;
-              if (newVal === _this3.vm[_exp]) {
+              if (newVal === _this2.vm[_exp]) {
                 return;
               }
-              _this3.vm[_exp] = newVal;
+              _this2.vm[_exp] = newVal;
             });
             removeAttrs.push(attrName);
-            new Watcher(_this3.vm, _exp, function (val, oldVal) {
+            new Watcher(_this2.vm, _exp, function (val, oldVal) {
               node.value = val;
             });
           }
@@ -433,6 +419,24 @@ var Compile = function () {
       removeAttrs.forEach(function (item) {
         node.removeAttribute(item);
       });
+    }
+  }], [{
+    key: 'nodeTofragment',
+    value: function nodeTofragment(el) {
+      var fragment = document.createDocumentFragment();
+      var child = el.firstChild;
+      while (child) {
+        // 将Dom元素移入fragment中
+        fragment.appendChild(child);
+        child = el.firstChild;
+      }
+      return fragment;
+    }
+  }, {
+    key: 'updateText',
+    value: function updateText(vnode, template, value) {
+      console.log('textContent:' + vnode.template);
+      vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value);
     }
   }, {
     key: 'isDirective',
@@ -450,9 +454,9 @@ var Compile = function () {
   return Compile;
 }();
 
-// import add from 'lodash/add';
+// import add from 'lodash/add'
 
-// console.log(add);
+// console.log(add)
 
 var Vud = function () {
   function Vud(options) {
