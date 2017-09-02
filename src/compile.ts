@@ -2,7 +2,8 @@ import Watcher from './watcher'
 import VNode from './vnode'
 
 export default class Compile {
-  constructor(el, vm) {
+  fragment: any
+  constructor(public el, public vm) {
     this.el = el
     this.vm = vm
     this.init()

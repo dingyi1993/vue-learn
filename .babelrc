@@ -2,10 +2,10 @@
   "presets": [
     ["env", {
       "targets": {
-        "browsers": ["last 10 versions", "safari >= 7"]
+        "browsers": ["last 2 versions", "safari >= 7"]
       },
       "modules": false
     }]
   ],
-  "plugins": ["external-helpers"]
+  "plugins": ["transform-runtime"]
 }

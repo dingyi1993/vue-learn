@@ -1,5 +1,6 @@
 export default class VNode {
-  constructor(node) {
+  template: string
+  constructor(public node) {
     this.node = node
     this.template = node.textContent
   }

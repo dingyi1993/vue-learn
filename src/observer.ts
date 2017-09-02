@@ -1,6 +1,7 @@
 import Dep from './dep'
 
 export default class Observer {
+  data: any
   constructor(data) {
     this.data = data
 

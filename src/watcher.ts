@@ -1,7 +1,8 @@
 import Dep from './dep'
 
 export default class Watcher {
-  constructor(vm, exp, cb) {
+  value: any
+  constructor(public vm, public exp, public cb) {
     this.cb = cb
     this.vm = vm
     this.exp = exp

@@ -1,4 +1,8 @@
+import Watcher from './watcher';
+
 export default class Dep {
+  static target: Watcher
+  stack: Array<Watcher>
   constructor() {
     this.stack = []
   }

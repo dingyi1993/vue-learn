@@ -1,10 +1,16 @@
 import { observer } from './observer'
 import Compile from './compile'
+import { add } from './math'
 // import add from 'lodash/add'
 
-// console.log(add)
+var qwe = 123
+
+console.log(add, add(2, 2))
 
 export default class Vud {
+  vm: Vud
+  data: any
+  methods: any
   constructor(options) {
     this.vm = this
     this.data = options.data
