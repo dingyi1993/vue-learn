@@ -1,4 +1,4 @@
-import Watcher from './watcher';
+import Watcher from './watcher'
 
 export default class Dep {
   static target: Watcher
@@ -6,7 +6,7 @@ export default class Dep {
   constructor() {
     this.stack = []
   }
-  addSub(target) {
+  addSub(target: Watcher) {
     this.stack.push(target)
   }
   notify() {

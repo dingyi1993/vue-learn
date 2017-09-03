@@ -1,9 +1,10 @@
 import Watcher from './watcher'
 import VNode from './vnode'
+import Vud from './index'
 
 export default class Compile {
-  fragment: any
-  constructor(public el, public vm) {
+  fragment: DocumentFragment
+  constructor(public el: HTMLElement, public vm: Vud) {
     this.el = el
     this.vm = vm
     this.init()
@@ -17,7 +18,7 @@ export default class Compile {
       console.error('dom元素不存在')
     }
   }
-  static nodeTofragment(el) {
+  static nodeTofragment(el: HTMLElement): DocumentFragment {
     const fragment = document.createDocumentFragment()
     let child = el.firstChild
     while (child) {
@@ -27,7 +28,7 @@ export default class Compile {
     }
     return fragment
   }
-  compileElement(el) {
+  compileElement(el: Node): Node {
     const childNodes = el.childNodes
     childNodes.forEach((item) => {
       const reg = /\{\{(.*)\}\}/
@@ -35,7 +36,7 @@ export default class Compile {
       const vnode = new VNode(item)
       switch (item.nodeType) {
         case Node.ELEMENT_NODE:
-          this.compileDirective(item)
+          this.compileDirective(<Element>item)
           if (item.childNodes && item.childNodes.length) {
             this.compileElement(item)
           }
@@ -53,7 +54,7 @@ export default class Compile {
     })
     return el
   }
-  compileText(vnode, regResult) {
+  compileText(vnode: VNode, regResult: RegExpExecArray) {
     const exp = regResult[1].trim()
     Compile.updateText(vnode, regResult[0], this.vm[exp]) // 将初始化的数据初始化到视图中
     new Watcher(this.vm, exp, (val, oldVal) => { // 生成订阅器并绑定更新函数
@@ -66,7 +67,7 @@ export default class Compile {
   }
 
   // 编译指令
-  compileDirective(node) {
+  compileDirective(node: Element) {
     const removeAttrs = []
     console.log(node.attributes)
     Array.prototype.forEach.call(node.attributes, (item) => {
@@ -84,8 +85,8 @@ export default class Compile {
         const exp = item.value
         const dir = attrName.substring(2)
         if (dir === 'model') {
-          node.value = this.vm[exp]
-          node.addEventListener('input', (e) => {
+          (<HTMLInputElement>node).value = this.vm[exp]
+          node.addEventListener('input', (e: any) => {
             const newVal = e.target.value
             if (newVal === this.vm[exp]) {
               return
@@ -94,7 +95,7 @@ export default class Compile {
           })
           removeAttrs.push(attrName)
           new Watcher(this.vm, exp, (val, oldVal) => {
-            node.value = val
+            (<HTMLInputElement>node).value = val
           })
         }
       }

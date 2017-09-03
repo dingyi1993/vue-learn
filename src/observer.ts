@@ -28,6 +28,7 @@ export default class Observer {
           return
         }
         console.log('new val is :' + newVal)
+        // tslint:disable-next-line:no-param-reassign
         val = newVal
         dep.notify()
       },

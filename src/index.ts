@@ -1,9 +1,14 @@
+import 'core-js/fn/array/find'
+
 import { observer } from './observer'
 import Compile from './compile'
 import { add } from './math'
 // import add from 'lodash/add'
 
-var qwe = 123
+const abc = ['qwe', 'asd', 'zxc']
+console.log(abc.find(item => item.length === 3))
+
+const qwe = 123
 
 console.log(add, add(2, 2))
 
