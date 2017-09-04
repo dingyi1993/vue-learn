@@ -5,8 +5,6 @@ import Vud from './index'
 export default class Compile {
   fragment: DocumentFragment
   constructor(public el: HTMLElement, public vm: Vud) {
-    this.el = el
-    this.vm = vm
     this.init()
   }
   init() {
@@ -57,11 +55,11 @@ export default class Compile {
   compileText(vnode: VNode, regResult: RegExpExecArray) {
     const exp = regResult[1].trim()
     Compile.updateText(vnode, regResult[0], this.vm[exp]) // 将初始化的数据初始化到视图中
-    new Watcher(this.vm, exp, (val, oldVal) => { // 生成订阅器并绑定更新函数
+    new Watcher(this.vm, exp, (val: string, oldVal: string) => { // 生成订阅器并绑定更新函数
       Compile.updateText(vnode, regResult[0], val)
     })
   }
-  static updateText(vnode, template, value) {
+  static updateText(vnode: VNode, template: string, value: string) {
     console.log('textContent:' + vnode.template)
     vnode.node.textContent = vnode.template.replace(new RegExp(template, 'g'), value)
   }
@@ -70,7 +68,7 @@ export default class Compile {
   compileDirective(node: Element) {
     const removeAttrs = []
     console.log(node.attributes)
-    Array.prototype.forEach.call(node.attributes, (item) => {
+    Array.prototype.forEach.call(node.attributes, (item: Attr) => {
       const attrName = item.name
       if (Compile.isEventDirective(attrName)) { // on:xxx
         const exp = item.value
@@ -100,14 +98,14 @@ export default class Compile {
         }
       }
     })
-    removeAttrs.forEach((item) => {
+    removeAttrs.forEach((item: string) => {
       node.removeAttribute(item)
     })
   }
-  static isDirective(attrName) {
+  static isDirective(attrName: string) {
     return /^v-/.test(attrName)
   }
-  static isEventDirective(attrName) {
+  static isEventDirective(attrName: string) {
     return /^on:/.test(attrName)
   }
 }

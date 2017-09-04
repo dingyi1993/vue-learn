@@ -847,9 +847,6 @@ var Watcher = function () {
         this.vm = vm;
         this.exp = exp;
         this.cb = cb;
-        this.cb = cb;
-        this.vm = vm;
-        this.exp = exp;
         this.value = this.get(); // 将自己添加到订阅器的操作
     }
 
@@ -887,7 +884,6 @@ var VNode = function VNode(node) {
     _classCallCheck(this, VNode);
 
     this.node = node;
-    this.node = node;
     this.template = node.textContent;
 };
 
@@ -895,8 +891,6 @@ var Compile = function () {
     function Compile(el, vm) {
         _classCallCheck(this, Compile);
 
-        this.el = el;
-        this.vm = vm;
         this.el = el;
         this.vm = vm;
         this.init();

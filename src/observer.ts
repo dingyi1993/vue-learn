@@ -1,17 +1,14 @@
 import Dep from './dep'
 
 export default class Observer {
-  data: any
-  constructor(data) {
-    this.data = data
-
+  constructor(public data: any) {
     const dep = new Dep()
     // const value = data.a
-    Object.keys(data).forEach((item) => {
+    Object.keys(data).forEach((item: string) => {
       Observer.defineReactive(data, item, data[item])
     })
   }
-  static defineReactive(data, key, val) {
+  static defineReactive(data: any, key: string, val) {
     const dep = new Dep()
     Object.defineProperty(data, key, {
       enumerable: true,

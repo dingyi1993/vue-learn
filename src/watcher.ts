@@ -1,11 +1,9 @@
 import Dep from './dep'
+import Vud from './index'
 
 export default class Watcher {
   value: any
-  constructor(public vm, public exp, public cb) {
-    this.cb = cb
-    this.vm = vm
-    this.exp = exp
+  constructor(public vm: Vud, public exp: string, public cb: Function) {
     this.value = this.get() // 将自己添加到订阅器的操作
   }
   update() {

@@ -12,24 +12,30 @@ const qwe = 123
 
 console.log(add, add(2, 2))
 
+interface VudOption {
+  data: any
+  methods: any
+  el: HTMLElement
+}
+
 export default class Vud {
   vm: Vud
   data: any
   methods: any
-  constructor(options) {
+  constructor(options: VudOption) {
     this.vm = this
     this.data = options.data
     this.methods = options.methods
 
     // 代理 vm.xxx => vm.data.xxx
-    Object.keys(options.data).forEach((item) => {
+    Object.keys(options.data).forEach((item: string) => {
       this.proxyKeys(item)
     })
     observer(options.data)
     new Compile(options.el, this.vm)
     return this
   }
-  proxyKeys(key) {
+  proxyKeys(key: string) {
     Object.defineProperty(this, key, {
       enumerable: true,
       configurable: true,
